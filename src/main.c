@@ -8,11 +8,13 @@
 #define ARG_MAX_LEN 100
 #define TYPE_MODE 0x1
 #define FILE_MODE 0x0
-void *handler;
+void *handler = NULL;
 
 int
 load_library(char *libname)
 {
+    if (handler != NULL)
+        dlclose(handler);
     char buff[256] = "./";
     if(libname[0] != '.' || libname[0] != '/')
         strncat(buff,libname,strlen(libname));
