@@ -20,7 +20,7 @@ load_library(char *libname)
         strncat(buff,libname,strlen(libname));
     handler = dlopen(buff,RTLD_NOW);
     if(handler == NULL)
-        exit_error(dlerror());
+        return 1;
     return 0;
 }
 int
@@ -30,7 +30,7 @@ call_method(char *methodname)
     char *error;
     func = dlsym(handler,methodname);
     if ((error = dlerror())!=NULL)
-        exit_error(error);
+        return 1;
     (*func)();
     return 0;
 }
@@ -42,13 +42,14 @@ exec_command(char *str)
     if(!strlen(str) || *str == '#' || *str == ';')
         return 0;
     if ( sscanf(str,"use %s",arg) == 1) {
-        if(load_library(arg) < 0)
+        if(load_library(arg))
             exit_error("Load library error\n");
 
         return 0;
     }
     else if(sscanf(str,"call %s",arg) == 1) {
-        call_method(arg);
+        if (call_method(arg))
+            exit_error("Call method error\n");
         return 0;
     }
     return 1;
